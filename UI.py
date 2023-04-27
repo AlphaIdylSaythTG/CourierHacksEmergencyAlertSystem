@@ -14,8 +14,8 @@ if st.button('Sign me up!'):
         response = requests.post('http://localhost:5000/add-user', json=data)
         if response.ok:
             st.success('User added successfully')
-            sendWord(response.json())
-            sendWord(response.json())            
+           # sendWord(response.json())
+            #sendWord(response.json())            
         else:
             st.error('Failed to add user')
     else:
