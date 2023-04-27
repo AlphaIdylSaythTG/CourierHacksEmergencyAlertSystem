@@ -2,7 +2,7 @@ import sqlite3
 from flask import Flask, request, jsonify, g
 
 app = Flask(__name__)
-# testing desktop
+
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
@@ -27,6 +27,13 @@ class UserDataBase:
         rows = self.cursor.fetchall()
         return [{'id': row[0], 'name': row[1], 'phone_number': row[2]} for row in rows]
 
+    def get_user(self, name):
+        self.cursor.execute(f"SELECT * FROM users WHERE name = '{name}'")
+        row = self.cursor.fetchone()
+        if row is None:
+            return None
+        return {'id': row[0], 'name': row[1], 'phone_number': row[2]}
+
 @app.teardown_appcontext
 def close_db(error):
     db = getattr(g, '_database', None)
@@ -47,6 +54,14 @@ def get_users():
     db = UserDataBase()
     users = db.get_all_users()
     return jsonify(users)
+
+@app.route('/get-user/<name>', methods=['GET'])
+def get_user(name):
+    db = UserDataBase()
+    user = db.get_user(name)
+    if user is None:
+        return jsonify({'message': 'User not found'})
+    return jsonify(user)
 
 if __name__ == '__main__':
     app.run(debug=True)
